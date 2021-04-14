@@ -1,65 +1,82 @@
+
 #include <windows.h>
-#include <windowsx.h>
-#include <tchar.h>
 
-LRESULT CALLBACK Windowproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-//The enrtry point for any Windows program
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-    //the hindle of the window, filled by a function
-    HWND hWnd;
-    //this struct holds information for the window class
-    WNDCLASSEX wc;
-    //clear out the window for use
-    ZeroMemory(&wc, sizeof(WNDCLASSEX));
+    // Register the window class.
+    const char CLASS_NAME[]  = "Sample Window Class";
+    
+    WNDCLASS wc = {};
 
-    //fill in the struct with needed information
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = Windowproc;
-    wc.hInstance = hInstance;
+    wc.lpfnWndProc   = WindowProc;
+    wc.hInstance     = hInstance;
+    wc.lpszClassName = CLASS_NAME;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    wc.lpszClassName = _T("WindowsClass1");
+    wc.style = CS_HREDRAW | CS_VREDRAW;
 
-    //Register the window class
-    RegisterClassEx(&wc);
+    RegisterClass(&wc);
 
-    //Create the window and use the result as the handle
-    hWnd = CreateWindowEx(0, _T("WindowClass1"), _T("Hello, Engine!"),
-                        WS_OVERLAPPEDWINDOW,300,300,500,400,NULL,NULL,hInstance,NULL);
-    //Display the window on the screen
-    ShowWindow(hWnd, nCmdShow);
+    // Create the window.
 
-    //Enter the main loop
-    //This struct holds Windows event messages
-    MSG msg;
-    
-    //Wait for the next message in the queue, store the result in 'msg'
-    while(GetMessage(&msg, NULL, 0, 0))
+    HWND hwnd = CreateWindowEx(
+        0,                              // Optional window styles.
+        CLASS_NAME,                     // Window class
+        "Learn to Program Windows",    // Window text
+        WS_OVERLAPPEDWINDOW,            // Window style
+
+        // Size and position
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+        NULL,       // Parent window    
+        NULL,       // Menu
+        hInstance,  // Instance handle
+        NULL        // Additional application data
+        );
+
+    if (hwnd == NULL)
     {
-        //Translate keystroke messages into the right format
+        return 0;
+    }
+
+    ShowWindow(hwnd, nCmdShow);
+
+    // Run the message loop.
+
+    MSG msg = {};
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
         TranslateMessage(&msg);
-        //Send the message to the WindowProc function
         DispatchMessage(&msg);
     }
-    //Return this part of the WM_QUIT message to Windows
+
     return msg.wParam;
 }
 
-//This is the main message handler for the program
-LRESULT CALLBACK Windowproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    //Sort through and find what code to run for the message given
-    switch(message)
+    switch (uMsg)
     {
-        case WM_DESTROY:
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+        break;
+
+    case WM_PAINT:
         {
-            //Close the application entirely
-            PostQuitMessage(0);
-            return 0;
-        }break;
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+
+
+
+            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
+
+            EndPaint(hwnd, &ps);
+        }
+        return 0;
+
     }
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
