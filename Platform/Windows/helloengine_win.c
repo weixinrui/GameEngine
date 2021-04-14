@@ -68,11 +68,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
-
-
-
-            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-
+            RECT rec = {20, 20, 60, 80};
+            HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+            FillRect(hdc, &rec, brush);
+            //FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
             EndPaint(hwnd, &ps);
         }
         return 0;
