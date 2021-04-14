@@ -1,5 +1,6 @@
 
 #include <windows.h>
+#include <d2d1.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
